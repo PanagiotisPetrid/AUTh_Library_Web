@@ -2,7 +2,7 @@
   "relation": ["delegate_permission/common.handle_all_urls"],
   "target": {
     "namespace": "android_app",
-    "package_name": "com.example.authcentrallibrary",
+    "package_name": "com.smartunilabs.findme",
     "sha256_cert_fingerprints": [
       "75:61:52:37:99:EB:3F:41:8E:78:B7:86:30:E3:B7:FE:AE:3E:7F:AD:0F:0B:3E:BD:95:3A:08:20:80:1E:F7:81"
     ]
