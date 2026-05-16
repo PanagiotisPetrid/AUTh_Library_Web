@@ -1,65 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AUTh Library App</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #6323ca; /* Matches your app's theme */
-            color: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            text-align: center;
-            padding: 20px;
-        }
-        .container {
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 40px;
-            border-radius: 16px;
-            max-width: 400px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            margin-top: 0;
-            font-size: 24px;
-        }
-        p {
-            font-size: 16px;
-            line-height: 1.5;
-            margin-bottom: 30px;
-        }
-        .play-button {
-            display: inline-block;
-            background-color: #ffffff;
-            color: #6323ca;
-            text-decoration: none;
-            font-weight: bold;
-            padding: 15px 30px;
-            border-radius: 30px;
-            font-size: 16px;
-            transition: transform 0.2s, background-color 0.2s;
-        }
-        .play-button:hover {
-            transform: scale(1.05);
-            background-color: #f0f0f0;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Find Me — AUTh Central Library</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f7f5f0;
+      --surface: #ffffff;
+      --ink: #1a1814;
+      --muted: #6b6760;
+      --accent: #6323ca;
+      --accent-light: #f0eafa;
+      --accent-mid: #d4bff7;
+      --border: #e3e0d8;
+      --rule: #d0ccc2;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.5rem;
+    }
+
+    /* subtle background texture */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle at 20% 20%, #e8d9fc55 0%, transparent 55%),
+                        radial-gradient(circle at 80% 80%, #d4bff720 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .card {
+      position: relative;
+      z-index: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      max-width: 420px;
+      width: 100%;
+      padding: 3rem 2.5rem 2.5rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04), 0 12px 40px rgba(99,35,202,0.08);
+      animation: fadeUp 0.55s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* app badge */
+    .app-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 0.32rem 0.8rem;
+      border-radius: 2rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .app-badge svg { width: 11px; height: 11px; fill: currentColor; }
+
+    /* heading */
+    h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(1.9rem, 6vw, 2.6rem);
+      font-weight: 400;
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      margin-bottom: 1rem;
+    }
+
+    h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    /* divider */
+    .rule {
+      width: 40px;
+      height: 2px;
+      background: var(--accent-mid);
+      border-radius: 2px;
+      margin-bottom: 1.25rem;
+    }
+
+    /* body copy */
+    p {
+      font-size: 0.95rem;
+      color: #3a3830;
+      line-height: 1.75;
+      margin-bottom: 2rem;
+    }
+
+    /* CTA button */
+    .play-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      background: var(--accent);
+      color: #ffffff;
+      text-decoration: none;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 0.95rem;
+      padding: 0.9rem 1.75rem;
+      border-radius: 12px;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+      box-shadow: 0 4px 18px rgba(99,35,202,0.28);
+      letter-spacing: 0.01em;
+    }
+
+    .play-button svg { width: 20px; height: 20px; fill: currentColor; flex-shrink: 0; }
+
+    .play-button:hover {
+      background: #7a35e8;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(99,35,202,0.36);
+    }
+
+    .play-button:active {
+      transform: translateY(0);
+      box-shadow: 0 3px 12px rgba(99,35,202,0.22);
+    }
+
+    /* footer */
+    footer {
+      position: relative;
+      z-index: 1;
+      margin-top: 2rem;
+      text-align: center;
+      animation: fadeUp 0.55s 0.15s ease both;
+    }
+
+    footer p {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.78rem;
+      font-weight: 500;
+    }
+
+    footer a:hover { text-decoration: underline; }
+  </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>AUTh Central Library</h1>
-        <p>You were invited to join a table! To see exactly where your friends are sitting, download the official app.</p>
-        
-        <!-- Replace the '#' with your actual Google Play Store URL once published -->
-        <a href="#" class="play-button">Get it on Google Play</a>
+  <div class="card">
+    <div class="app-badge">
+      <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+      AUTh Central Library
     </div>
+
+    <h1>Find your <em>friends</em> at the library.</h1>
+
+    <div class="rule"></div>
+
+    <p>You were invited to join a table! To see exactly where your friends are sitting, download the official app.</p>
+
+    <!-- To be Replaced your Google Play Store URL once published -->
+    <a href="#" style="display:inline-block; margin-top: 0.5rem;">
+      <img
+        src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
+        alt="Get it on Google Play"
+        style="height: 64px; width: auto;"
+      />
+    </a>
+  </div>
+
+  <footer>
+    <p>© 2026 SmartUniLabs</p>
+    <a href="/privacy.html">Privacy Policy</a>
+  </footer>
 
 </body>
 </html>
