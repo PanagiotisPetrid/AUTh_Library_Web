@@ -7,197 +7,90 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg: #f7f5f0;
-      --surface: #ffffff;
-      --ink: #1a1814;
-      --muted: #6b6760;
-      --accent: #6323ca;
-      --accent-light: #f0eafa;
-      --accent-mid: #d4bff7;
-      --border: #e3e0d8;
-      --rule: #d0ccc2;
+      --bg: #f7f5f0; --surface: #ffffff; --ink: #1a1814; --muted: #6b6760;
+      --accent: #6323ca; --accent-light: #f0eafa; --accent-mid: #d4bff7; --border: #e3e0d8;
     }
-
     body {
-      background: var(--bg);
-      color: var(--ink);
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 300;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem 1.5rem;
+      background: var(--bg); color: var(--ink);
+      font-family: 'DM Sans', sans-serif; font-weight: 300;
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 2rem 1.25rem;
     }
-
-    /* subtle background texture */
     body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: radial-gradient(circle at 20% 20%, #e8d9fc55 0%, transparent 55%),
-                        radial-gradient(circle at 80% 80%, #d4bff720 0%, transparent 50%);
-      pointer-events: none;
-      z-index: 0;
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image: radial-gradient(circle at 20% 15%, #e8d9fc66 0%, transparent 55%),
+                        radial-gradient(circle at 80% 85%, #d4bff730 0%, transparent 50%);
     }
-
     .card {
-      position: relative;
-      z-index: 1;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      max-width: 420px;
-      width: 100%;
-      padding: 3rem 2.5rem 2.5rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.04), 0 12px 40px rgba(99,35,202,0.08);
-      animation: fadeUp 0.55s ease both;
+      position: relative; z-index: 1; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 20px;
+      max-width: 400px; width: 100%; padding: 2.5rem 2rem 2rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04), 0 12px 40px rgba(99,35,202,0.09);
+      animation: fadeUp 0.5s ease both;
     }
-
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
+      from { opacity: 0; transform: translateY(18px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-
-    /* app badge */
     .app-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45rem;
-      font-size: 0.7rem;
-      font-weight: 500;
-      letter-spacing: 0.13em;
-      text-transform: uppercase;
-      color: var(--accent);
-      background: var(--accent-light);
-      padding: 0.32rem 0.8rem;
-      border-radius: 2rem;
-      margin-bottom: 1.75rem;
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      font-size: 0.7rem; font-weight: 500; letter-spacing: 0.13em;
+      text-transform: uppercase; color: var(--accent); background: var(--accent-light);
+      padding: 0.32rem 0.8rem; border-radius: 2rem; margin-bottom: 1.6rem;
     }
-
     .app-badge svg { width: 11px; height: 11px; fill: currentColor; }
-
-    /* heading */
     h1 {
       font-family: 'DM Serif Display', serif;
-      font-size: clamp(1.9rem, 6vw, 2.6rem);
-      font-weight: 400;
-      line-height: 1.15;
-      letter-spacing: -0.01em;
-      color: var(--ink);
-      margin-bottom: 1rem;
+      font-size: clamp(1.8rem, 7vw, 2.4rem); font-weight: 400;
+      line-height: 1.18; letter-spacing: -0.01em; color: var(--ink); margin-bottom: 0.9rem;
     }
-
-    h1 em {
-      font-style: italic;
-      color: var(--accent);
+    h1 em { font-style: italic; color: var(--accent); }
+    .rule { width: 36px; height: 2px; background: var(--accent-mid); border-radius: 2px; margin-bottom: 1.1rem; }
+    p { font-size: 0.93rem; color: #3a3830; line-height: 1.75; margin-bottom: 1.75rem; }
+    .play-badge { display: block; margin-bottom: 1rem; }
+    .play-badge img { height: 58px; width: auto; display: block; }
+    hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0 1.25rem; }
+    .help-link {
+      display: flex; align-items: center; gap: 0.6rem; font-size: 0.86rem;
+      color: var(--accent); font-weight: 500; text-decoration: none;
+      padding: 0.75rem 1rem; background: var(--accent-light); border-radius: 10px;
+      transition: background 0.15s;
     }
-
-    /* divider */
-    .rule {
-      width: 40px;
-      height: 2px;
-      background: var(--accent-mid);
-      border-radius: 2px;
-      margin-bottom: 1.25rem;
-    }
-
-    /* body copy */
-    p {
-      font-size: 0.95rem;
-      color: #3a3830;
-      line-height: 1.75;
-      margin-bottom: 2rem;
-    }
-
-    /* CTA button */
-    .play-button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.6rem;
-      background: var(--accent);
-      color: #ffffff;
-      text-decoration: none;
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 500;
-      font-size: 0.95rem;
-      padding: 0.9rem 1.75rem;
-      border-radius: 12px;
-      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
-      box-shadow: 0 4px 18px rgba(99,35,202,0.28);
-      letter-spacing: 0.01em;
-    }
-
-    .play-button svg { width: 20px; height: 20px; fill: currentColor; flex-shrink: 0; }
-
-    .play-button:hover {
-      background: #7a35e8;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 28px rgba(99,35,202,0.36);
-    }
-
-    .play-button:active {
-      transform: translateY(0);
-      box-shadow: 0 3px 12px rgba(99,35,202,0.22);
-    }
-
-    /* footer */
+    .help-link:hover { background: #e4d5f9; }
+    .help-link svg { width: 16px; height: 16px; fill: currentColor; flex-shrink: 0; }
+    .help-link .arrow { margin-left: auto; opacity: 0.5; }
     footer {
-      position: relative;
-      z-index: 1;
-      margin-top: 2rem;
-      text-align: center;
-      animation: fadeUp 0.55s 0.15s ease both;
+      position: relative; z-index: 1; margin-top: 1.75rem;
+      text-align: center; animation: fadeUp 0.5s 0.12s ease both;
     }
-
-    footer p {
-      font-size: 0.78rem;
-      color: var(--muted);
-      margin-bottom: 0.4rem;
-    }
-
-    footer a {
-      color: var(--accent);
-      text-decoration: none;
-      font-size: 0.78rem;
-      font-weight: 500;
-    }
-
+    footer p { font-size: 0.76rem; color: var(--muted); margin-bottom: 0.35rem; }
+    footer a { color: var(--accent); text-decoration: none; font-size: 0.76rem; font-weight: 500; }
     footer a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
-
   <div class="card">
     <div class="app-badge">
       <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
       AUTh Central Library
     </div>
-
     <h1>Find your <em>friends</em> at the library.</h1>
-
     <div class="rule"></div>
-
     <p>You were invited to join a table! To see exactly where your friends are sitting, download the official app.</p>
-
-    <!-- To be Replaced your Google Play Store URL once published -->
-    <a href="#" style="display:inline-block; margin-top: 0.5rem;">
-      <img
-        src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
-        alt="Get it on Google Play"
-        style="height: 64px; width: auto;"
-      />
+    <a href="#" class="play-badge">
+      <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" />
+    </a>
+    <hr />
+    <a href="troubleshooting.html" class="help-link">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+      <span>Link didn't open the app?</span>
+      <svg class="arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
     </a>
   </div>
-
   <footer>
     <p>© 2026 SmartUniLabs</p>
-    <a href="/AUTh_Library_Web/privacy.html">Privacy Policy</a>
+    <a href="https://panagiotispetrid.github.io/AUTh_Library_Web/privacy.html">Privacy Policy</a>
   </footer>
-
 </body>
 </html>
