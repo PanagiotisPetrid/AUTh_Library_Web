@@ -7,237 +7,151 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg: #f7f5f0;
-      --surface: #ffffff;
-      --ink: #1a1814;
-      --muted: #6b6760;
-      --accent: #2d5be3;
-      --accent-light: #e8edfd;
-      --border: #e3e0d8;
-      --rule: #d0ccc2;
+      --bg: #f7f5f0; --surface: #ffffff; --ink: #1a1814; --muted: #6b6760;
+      --accent: #6323ca; --accent-light: #f0eafa; --accent-mid: #d4bff7;
+      --border: #e3e0d8; --rule: #d0ccc2;
+    }
+    body {
+      background: var(--bg); color: var(--ink);
+      font-family: 'DM Sans', sans-serif; font-weight: 300;
+      line-height: 1.7; min-height: 100vh; padding: 0 1.25rem 5rem;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image: radial-gradient(circle at 85% 10%, #e8d9fc44 0%, transparent 45%);
     }
 
-    body {
-      background: var(--bg);
-      color: var(--ink);
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 300;
-      line-height: 1.7;
-      min-height: 100vh;
-      padding: 0 1.5rem 5rem;
+    /* ── Top nav bar ── */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(247,245,240,0.88); backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1.25rem;
+      display: flex; align-items: center; gap: 0.75rem;
+      margin: 0 -1.25rem 0; /* bleed to edges */
+    }
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      font-size: 0.85rem; font-weight: 500; color: var(--accent);
+      text-decoration: none; padding: 0.45rem 0.85rem;
+      background: var(--accent-light); border-radius: 8px;
+      transition: background 0.15s; min-height: 44px;
+      white-space: nowrap;
+    }
+    .back-btn:hover { background: #e4d5f9; }
+    .back-btn svg { width: 16px; height: 16px; fill: currentColor; }
+    .topbar-title {
+      font-size: 0.82rem; font-weight: 500; color: var(--muted);
+      letter-spacing: 0.04em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
 
     /* ── Header ── */
     header {
-      max-width: 680px;
-      margin: 0 auto;
-      padding: 4rem 0 3rem;
-      border-bottom: 1px solid var(--rule);
+      max-width: 640px; margin: 0 auto;
+      padding: 2.5rem 0 2rem; border-bottom: 1px solid var(--rule);
+      position: relative; z-index: 1;
+      animation: fadeUp 0.45s ease both;
     }
-
     .app-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.72rem;
-      font-weight: 500;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--accent);
-      background: var(--accent-light);
-      padding: 0.35rem 0.85rem;
-      border-radius: 2rem;
-      margin-bottom: 1.5rem;
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      font-size: 0.7rem; font-weight: 500; letter-spacing: 0.13em;
+      text-transform: uppercase; color: var(--accent); background: var(--accent-light);
+      padding: 0.32rem 0.8rem; border-radius: 2rem; margin-bottom: 1.25rem;
     }
-
-    .app-badge svg {
-      width: 12px; height: 12px; fill: currentColor;
-    }
-
+    .app-badge svg { width: 11px; height: 11px; fill: currentColor; }
     header h1 {
       font-family: 'DM Serif Display', serif;
-      font-size: clamp(2.2rem, 5vw, 3.2rem);
-      font-weight: 400;
-      line-height: 1.15;
-      letter-spacing: -0.01em;
-      color: var(--ink);
-      margin-bottom: 0.75rem;
+      font-size: clamp(2rem, 6vw, 2.8rem); font-weight: 400;
+      line-height: 1.15; letter-spacing: -0.01em; color: var(--ink); margin-bottom: 0.6rem;
     }
+    header h1 em { font-style: italic; color: var(--accent); }
+    .effective-date { font-size: 0.8rem; color: var(--muted); letter-spacing: 0.04em; }
 
-    header h1 em {
-      font-style: italic;
-      color: var(--accent);
-    }
-
-    .effective-date {
-      font-size: 0.82rem;
-      color: var(--muted);
-      letter-spacing: 0.04em;
-    }
-
-    /* ── Intro ── */
+    /* ── Intro callout ── */
     .intro {
-      max-width: 680px;
-      margin: 2.5rem auto 0;
-      padding: 1.75rem 2rem;
-      background: var(--accent-light);
-      border-left: 3px solid var(--accent);
-      border-radius: 0 8px 8px 0;
+      max-width: 640px; margin: 2rem auto 0;
+      padding: 1.5rem 1.5rem 1.5rem 1.25rem;
+      background: var(--accent-light); border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0; position: relative; z-index: 1;
+      animation: fadeUp 0.45s 0.07s ease both;
     }
+    .intro p { font-size: 0.93rem; color: #3a2560; line-height: 1.75; }
 
-    .intro p {
-      font-size: 0.97rem;
-      color: #2a3a70;
-      line-height: 1.75;
-    }
-
-    /* ── Main content ── */
-    main {
-      max-width: 680px;
-      margin: 0 auto;
-    }
-
+    /* ── Sections ── */
+    main { max-width: 640px; margin: 0 auto; position: relative; z-index: 1; }
     section {
-      padding: 2.5rem 0;
-      border-bottom: 1px solid var(--border);
+      padding: 2.25rem 0; border-bottom: 1px solid var(--border);
+      animation: fadeUp 0.45s ease both;
     }
-
-    section:last-child {
-      border-bottom: none;
-    }
-
+    section:last-child { border-bottom: none; }
     .section-number {
-      font-size: 0.68rem;
-      font-weight: 500;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 0.5rem;
+      font-size: 0.67rem; font-weight: 500; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem;
     }
-
     section h2 {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.45rem;
-      font-weight: 400;
-      color: var(--ink);
-      margin-bottom: 1.25rem;
-      line-height: 1.25;
+      font-family: 'DM Serif Display', serif; font-size: 1.35rem; font-weight: 400;
+      color: var(--ink); margin-bottom: 1.1rem; line-height: 1.25;
     }
-
-    section p {
-      font-size: 0.95rem;
-      color: #3a3830;
-      margin-bottom: 0.75rem;
-    }
-
+    section p { font-size: 0.93rem; color: #3a3830; margin-bottom: 0.7rem; }
     section p:last-child { margin-bottom: 0; }
 
-    /* ── Fact cards (for list-style items) ── */
-    .fact-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      margin-top: 0.5rem;
-    }
-
+    /* ── Fact cards ── */
+    .fact-list { display: flex; flex-direction: column; gap: 0.65rem; margin-top: 0.5rem; }
     .fact-card {
-      display: flex;
-      align-items: flex-start;
-      gap: 1rem;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1rem 1.25rem;
+      display: flex; align-items: flex-start; gap: 0.875rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 0.9rem 1.1rem;
     }
-
     .fact-icon {
-      flex-shrink: 0;
-      width: 32px; height: 32px;
-      border-radius: 6px;
-      background: var(--accent-light);
-      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; width: 30px; height: 30px; border-radius: 6px;
+      background: var(--accent-light); display: flex; align-items: center; justify-content: center;
     }
+    .fact-icon svg { width: 15px; height: 15px; fill: var(--accent); }
+    .fact-body strong { display: block; font-size: 0.86rem; font-weight: 500; color: var(--ink); margin-bottom: 0.15rem; }
+    .fact-body span { font-size: 0.84rem; color: var(--muted); line-height: 1.6; }
 
-    .fact-icon svg { width: 16px; height: 16px; fill: var(--accent); }
-
-    .fact-body strong {
-      display: block;
-      font-size: 0.88rem;
-      font-weight: 500;
-      color: var(--ink);
-      margin-bottom: 0.2rem;
-    }
-
-    .fact-body span {
-      font-size: 0.87rem;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-
-    /* ── Contact section ── */
+    /* ── Contact ── */
     .contact-block {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.25rem 1.5rem;
-      margin-top: 0.75rem;
+      display: flex; align-items: center; gap: 0.875rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1.1rem 1.25rem; margin-top: 0.75rem;
     }
-
-    .contact-block svg { width: 20px; height: 20px; fill: var(--accent); flex-shrink: 0; }
-
-    .contact-block a {
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 0.95rem;
-    }
-
+    .contact-block svg { width: 18px; height: 18px; fill: var(--accent); flex-shrink: 0; }
+    .contact-block a { color: var(--accent); text-decoration: none; font-weight: 500; font-size: 0.92rem; }
     .contact-block a:hover { text-decoration: underline; }
 
     /* ── Footer ── */
     footer {
-      max-width: 680px;
-      margin: 3rem auto 0;
-      padding-top: 2rem;
-      border-top: 1px solid var(--rule);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 0.5rem;
+      max-width: 640px; margin: 2.5rem auto 0;
+      padding-top: 1.75rem; border-top: 1px solid var(--rule);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 0.5rem; position: relative; z-index: 1;
     }
+    footer p { font-size: 0.76rem; color: var(--muted); }
 
-    footer p {
-      font-size: 0.78rem;
-      color: var(--muted);
-    }
-
-    /* Fade-in on load */
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(16px); }
+      from { opacity: 0; transform: translateY(14px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-
-    header, .intro, section {
-      animation: fadeUp 0.5s ease both;
-    }
-
-    header          { animation-delay: 0.05s; }
-    .intro          { animation-delay: 0.12s; }
-    section:nth-child(1) { animation-delay: 0.18s; }
-    section:nth-child(2) { animation-delay: 0.23s; }
-    section:nth-child(3) { animation-delay: 0.28s; }
-    section:nth-child(4) { animation-delay: 0.33s; }
-    section:nth-child(5) { animation-delay: 0.38s; }
-    section:nth-child(6) { animation-delay: 0.43s; }
+    section:nth-child(1) { animation-delay: 0.13s; }
+    section:nth-child(2) { animation-delay: 0.18s; }
+    section:nth-child(3) { animation-delay: 0.22s; }
+    section:nth-child(4) { animation-delay: 0.26s; }
+    section:nth-child(5) { animation-delay: 0.30s; }
+    section:nth-child(6) { animation-delay: 0.34s; }
   </style>
 </head>
 <body>
+
+  <div class="topbar">
+    <a href="index.html" class="back-btn">
+      <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      Back
+    </a>
+    <span class="topbar-title">Privacy Policy</span>
+  </div>
 
   <header>
     <div class="app-badge">
@@ -253,34 +167,27 @@
   </div>
 
   <main>
-
     <section>
       <p class="section-number">Section 01</p>
       <h2>Information Collection and Use</h2>
       <p>The App does not collect, store, or transmit any personal information.</p>
       <div class="fact-list">
         <div class="fact-card">
-          <div class="fact-icon">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-          </div>
+          <div class="fact-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg></div>
           <div class="fact-body">
             <strong>No Personal Data</strong>
             <span>We do not collect names, email addresses, phone numbers, or any other identifying information.</span>
           </div>
         </div>
         <div class="fact-card">
-          <div class="fact-icon">
-            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
-          </div>
+          <div class="fact-icon"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg></div>
           <div class="fact-body">
             <strong>No Background Tracking</strong>
             <span>The App does not track your behavior, usage patterns, or location in the background.</span>
           </div>
         </div>
         <div class="fact-card">
-          <div class="fact-icon">
-            <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.07-.44.18-.88.18-1.36C18 2.09 15.91 0 13.36 0c-1.31 0-2.51.5-3.36 1.33L9 2.29 7.99 1.33C7.14.5 5.93 0 4.63 0 2.08 0 0 2.09 0 4.64c0 .48.1.92.18 1.36H0c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg>
-          </div>
+          <div class="fact-icon"><svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg></div>
           <div class="fact-body">
             <strong>Local Data Only</strong>
             <span>The App uses a small local file (SharedPreferences) on your device to remember if you have dismissed the "How to Use" instructions. This data never leaves your device.</span>
@@ -294,18 +201,14 @@
       <h2>Permissions</h2>
       <div class="fact-list">
         <div class="fact-card">
-          <div class="fact-icon">
-            <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
-          </div>
+          <div class="fact-icon"><svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg></div>
           <div class="fact-body">
             <strong>No Internet Access</strong>
             <span>The App does not request or use the Android Internet permission. It is physically incapable of sending data from your device to an external server.</span>
           </div>
         </div>
         <div class="fact-card">
-          <div class="fact-icon">
-            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-          </div>
+          <div class="fact-icon"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>
           <div class="fact-body">
             <strong>No Location Access</strong>
             <span>The App does not use GPS or network-based location services.</span>
@@ -342,7 +245,6 @@
         <a href="mailto:smart.unilabs@gmail.com">smart.unilabs@gmail.com</a>
       </div>
     </section>
-
   </main>
 
   <footer>
