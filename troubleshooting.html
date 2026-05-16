@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fix Deep Links — Find Me</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f7f5f0; --surface: #ffffff; --ink: #1a1814; --muted: #6b6760;
+      --accent: #6323ca; --accent-light: #f0eafa; --accent-mid: #d4bff7;
+      --border: #e3e0d8; --rule: #d0ccc2;
+      --green: #1a7a4a; --green-light: #eaf6f0;
+      --amber: #7a4f0a; --amber-light: #fdf4e3;
+    }
+    body {
+      background: var(--bg); color: var(--ink);
+      font-family: 'DM Sans', sans-serif; font-weight: 300;
+      line-height: 1.7; min-height: 100vh; padding: 0 1.25rem 5rem;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image: radial-gradient(circle at 90% 5%, #e8d9fc44 0%, transparent 40%);
+    }
+
+    /* ── Topbar ── */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(247,245,240,0.88); backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1.25rem; display: flex; align-items: center; gap: 0.75rem;
+      margin: 0 -1.25rem;
+    }
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      font-size: 0.85rem; font-weight: 500; color: var(--accent);
+      text-decoration: none; padding: 0.45rem 0.85rem;
+      background: var(--accent-light); border-radius: 8px;
+      transition: background 0.15s; min-height: 44px; white-space: nowrap;
+    }
+    .back-btn:hover { background: #e4d5f9; }
+    .back-btn svg { width: 16px; height: 16px; fill: currentColor; }
+    .topbar-title { font-size: 0.82rem; font-weight: 500; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* ── Header ── */
+    header {
+      max-width: 640px; margin: 0 auto; padding: 2.5rem 0 2rem;
+      border-bottom: 1px solid var(--rule); position: relative; z-index: 1;
+      animation: fadeUp 0.45s ease both;
+    }
+    .app-badge {
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      font-size: 0.7rem; font-weight: 500; letter-spacing: 0.13em;
+      text-transform: uppercase; color: var(--accent); background: var(--accent-light);
+      padding: 0.32rem 0.8rem; border-radius: 2rem; margin-bottom: 1.25rem;
+    }
+    .app-badge svg { width: 11px; height: 11px; fill: currentColor; }
+    header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(1.9rem, 6vw, 2.6rem); font-weight: 400;
+      line-height: 1.15; letter-spacing: -0.01em; color: var(--ink); margin-bottom: 0.6rem;
+    }
+    header h1 em { font-style: italic; color: var(--accent); }
+    header p { font-size: 0.92rem; color: var(--muted); }
+
+    /* ── Workaround callout ── */
+    .workaround {
+      max-width: 640px; margin: 2rem auto 0;
+      padding: 1.25rem 1.25rem 1.25rem 1.1rem;
+      background: var(--green-light); border-left: 3px solid var(--green);
+      border-radius: 0 8px 8px 0; position: relative; z-index: 1;
+      animation: fadeUp 0.45s 0.07s ease both;
+    }
+    .workaround-title {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.78rem; font-weight: 500; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--green); margin-bottom: 0.4rem;
+    }
+    .workaround-title svg { width: 14px; height: 14px; fill: currentColor; }
+    .workaround p { font-size: 0.88rem; color: #1f4a32; line-height: 1.7; }
+    .workaround strong { font-weight: 500; }
+
+    /* ── Main ── */
+    main { max-width: 640px; margin: 0 auto; position: relative; z-index: 1; }
+
+    /* Fix section */
+    .fix-section {
+      padding: 2rem 0 1.5rem; border-bottom: 1px solid var(--border);
+      animation: fadeUp 0.45s ease both;
+    }
+    .fix-section:last-child { border-bottom: none; }
+
+    .device-label {
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      font-size: 0.69rem; font-weight: 500; letter-spacing: 0.13em;
+      text-transform: uppercase; color: var(--accent); background: var(--accent-light);
+      padding: 0.28rem 0.75rem; border-radius: 2rem; margin-bottom: 0.9rem;
+    }
+    .device-label svg { width: 11px; height: 11px; fill: currentColor; }
+
+    .fix-section h2 {
+      font-family: 'DM Serif Display', serif; font-size: 1.3rem; font-weight: 400;
+      color: var(--ink); margin-bottom: 0.5rem; line-height: 1.25;
+    }
+    .fix-section > p { font-size: 0.88rem; color: var(--muted); margin-bottom: 1.1rem; }
+
+    /* Steps */
+    .steps { display: flex; flex-direction: column; gap: 0; }
+    .step {
+      display: flex; gap: 0.875rem; padding: 0.9rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .step:last-child { border-bottom: none; }
+    .step-num {
+      flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
+      background: var(--accent); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.72rem; font-weight: 500; margin-top: 0.1rem;
+    }
+    .step-body { flex: 1; }
+    .step-body strong { display: block; font-size: 0.88rem; font-weight: 500; color: var(--ink); margin-bottom: 0.15rem; }
+    .step-body span { font-size: 0.84rem; color: var(--muted); line-height: 1.6; }
+    .step-body .path {
+      display: inline-block; margin-top: 0.35rem;
+      font-size: 0.79rem; background: var(--accent-light); color: var(--accent);
+      padding: 0.25rem 0.6rem; border-radius: 5px; font-weight: 500; line-height: 1.5;
+    }
+
+    /* Note box */
+    .note {
+      margin-top: 1rem; padding: 0.9rem 1rem 0.9rem 0.9rem;
+      background: var(--amber-light); border-left: 3px solid #d4860a;
+      border-radius: 0 6px 6px 0;
+    }
+    .note p { font-size: 0.83rem; color: var(--amber); line-height: 1.65; margin: 0; }
+    .note strong { font-weight: 500; }
+
+    /* Nuclear option card */
+    .nuclear-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.25rem 1.25rem 1.25rem 1.1rem;
+      margin-top: 0.25rem;
+    }
+    .nuclear-card p { font-size: 0.88rem; color: #3a3830; line-height: 1.7; margin-bottom: 0.5rem; }
+    .nuclear-card p:last-child { margin-bottom: 0; }
+
+    /* ── Footer ── */
+    footer {
+      max-width: 640px; margin: 2.5rem auto 0; padding-top: 1.75rem;
+      border-top: 1px solid var(--rule);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 0.5rem; position: relative; z-index: 1;
+    }
+    footer p { font-size: 0.76rem; color: var(--muted); }
+    footer a { color: var(--accent); text-decoration: none; font-size: 0.76rem; font-weight: 500; }
+    footer a:hover { text-decoration: underline; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fix-section:nth-child(1) { animation-delay: 0.13s; }
+    .fix-section:nth-child(2) { animation-delay: 0.18s; }
+    .fix-section:nth-child(3) { animation-delay: 0.22s; }
+    .fix-section:nth-child(4) { animation-delay: 0.26s; }
+    .fix-section:nth-child(5) { animation-delay: 0.30s; }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <a href="index.html" class="back-btn">
+      <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      Back
+    </a>
+    <span class="topbar-title">Fix Deep Links</span>
+  </div>
+
+  <header>
+    <div class="app-badge">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+      Troubleshooting
+    </div>
+    <h1>Link didn't open the <em>app?</em></h1>
+    <p>Follow the steps for your device to enable automatic deep links.</p>
+  </header>
+
+  <div class="workaround">
+    <div class="workaround-title">
+      <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+      Quick workaround while you fix it
+    </div>
+    <p>Open the <strong>Find Me</strong> app, tap the <strong>Search</strong> button, and type the table name from the link (e.g. <strong>A4</strong>). It will highlight the exact table right away.</p>
+  </div>
+
+  <main>
+
+    <!-- Samsung -->
+    <div class="fix-section">
+      <div class="device-label">
+        <svg viewBox="0 0 24 24"><path d="M17 2H7C5.9 2 5 2.9 5 4v16c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-5 18c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm5-4H7V4h10v12z"/></svg>
+        Samsung (One UI)
+      </div>
+      <h2>Samsung devices</h2>
+      <p>Samsung's One UI sometimes disables app link verification by default.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Open Settings</strong>
+            <span>Go to your phone's main Settings app.</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Find the App</strong>
+            <span>Tap <em>Apps</em>, then find and tap <em>Find Me</em> in the list.</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Open "Set as default"</strong>
+            <span>Scroll down and tap <em>Set as default</em>.</span>
+            <span class="path">Settings → Apps → Find Me → Set as default</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Tap "Supported web addresses"</strong>
+            <span>You'll see a list of web addresses the app can handle.</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <strong>Enable the domain</strong>
+            <span>Make sure <strong>panagiotispetrid.github.io</strong> is toggled on. If it's off, tap it to enable.</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">6</div>
+          <div class="step-body">
+            <strong>Try the link again</strong>
+            <span>Ask your friend to re-send you the link, or tap it again from your messages.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stock Android / Pixel -->
+    <div class="fix-section">
+      <div class="device-label">
+        <svg viewBox="0 0 24 24"><path d="M17 2H7C5.9 2 5 2.9 5 4v16c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-5 18c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm5-4H7V4h10v12z"/></svg>
+        Pixel / Stock Android
+      </div>
+      <h2>Google Pixel &amp; stock Android</h2>
+      <p>On standard Android, you can manage which links open in the app directly from App Info.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Open Settings → Apps</strong>
+            <span>Find and tap <em>Find Me</em>.</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Tap "Open by default"</strong>
+            <span class="path">Settings → Apps → Find Me → Open by default</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Tap "Add link"</strong>
+            <span>A list of supported web addresses appears.</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Check panagiotispetrid.github.io</strong>
+            <span>Make sure the domain is checked, then tap <em>Add</em>.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Xiaomi / MIUI -->
+    <div class="fix-section">
+      <div class="device-label">
+        <svg viewBox="0 0 24 24"><path d="M17 2H7C5.9 2 5 2.9 5 4v16c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-5 18c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm5-4H7V4h10v12z"/></svg>
+        Xiaomi / MIUI / HyperOS
+      </div>
+      <h2>Xiaomi devices</h2>
+      <p>MIUI and HyperOS have an extra security layer that can block link interception.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Open Settings → Apps</strong>
+            <span>Tap <em>Manage apps</em>, then find <em>Find Me</em>.</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Tap "Open by default" or "Default apps"</strong>
+            <span>The label varies by MIUI version.</span>
+            <span class="path">Settings → Apps → Manage apps → Find Me → Open by default</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Enable "Open supported links"</strong>
+            <span>Toggle this on if it appears. Then verify that <strong>panagiotispetrid.github.io</strong> is listed and enabled.</span>
+          </div>
+        </div>
+      </div>
+      <div class="note">
+        <p><strong>MIUI tip:</strong> If the option is greyed out, go to <em>Settings → Additional settings → Privacy → Special app access → Opening links</em> and enable it for Find Me there instead.</p>
+      </div>
+    </div>
+
+    <!-- Huawei / EMUI -->
+    <div class="fix-section">
+      <div class="device-label">
+        <svg viewBox="0 0 24 24"><path d="M17 2H7C5.9 2 5 2.9 5 4v16c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-5 18c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm5-4H7V4h10v12z"/></svg>
+        Huawei / EMUI / HarmonyOS
+      </div>
+      <h2>Huawei devices</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Open Settings → Apps → Apps</strong>
+            <span>Find <em>Find Me</em> and tap it.</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Tap "Default app settings" or "Open by default"</strong>
+            <span class="path">Settings → Apps → Find Me → Default app settings</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Enable the supported domain</strong>
+            <span>Toggle on <strong>panagiotispetrid.github.io</strong>.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nuclear option -->
+    <div class="fix-section">
+      <div class="device-label">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        All devices
+      </div>
+      <h2>Still not working? Try these</h2>
+      <div class="nuclear-card">
+        <p><strong>Clear app defaults.</strong> In Settings → Apps → Find Me, look for <em>Clear defaults</em> or <em>Open by default → Clear defaults</em>. Then tap the shared link again and choose <em>Find Me</em> from the picker — select "Always".</p>
+        <p><strong>Reinstall the app.</strong> Uninstall Find Me, then reinstall it from the Google Play Store. Android re-runs link verification on a fresh install, which often resolves the issue automatically.</p>
+        <p><strong>Check your browser.</strong> If you're tapping the link inside an app like Instagram or Gmail, those apps use a built-in browser that may not hand off to Find Me. Try copying the link and opening it in Chrome instead.</p>
+        <p><strong>Restart your phone.</strong> After changing any of the settings above, a restart ensures Android applies the new defaults cleanly.</p>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    <p>© 2026 SmartUniLabs · Find Me</p>
+    <a href="https://panagiotispetrid.github.io/AUTh_Library_Web/privacy.html">Privacy Policy</a>
+  </footer>
+
+</body>
+</html>
