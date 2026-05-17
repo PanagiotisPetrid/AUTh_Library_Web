@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="theme-color" content="#6323ca" />
+  <title>Find Me — Share Your Location</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --accent: #6323ca;
+      --accent-light: #f0eafa;
+      --accent-mid: #d4bff7;
+      --ink: #1a1814;
+      --muted: #6b6760;
+      --surface: #ffffff;
+      --border: #e3e0d8;
+      --green: #1a7a4a;
+      --green-light: #eaf6f0;
+      --header-h: 56px;
+      --banner-h: 52px;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      background: #2a1054;
+    }
+
+    /* ── Header ── */
+    .header {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: var(--header-h); z-index: 200;
+      background: var(--accent);
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0 1rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    }
+
+    .header-back {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border-radius: 8px;
+      background: rgba(255,255,255,0.15);
+      color: #fff; text-decoration: none; flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .header-back:hover { background: rgba(255,255,255,0.25); }
+    .header-back svg { width: 20px; height: 20px; fill: currentColor; }
+
+    .header-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.15rem; color: #fff; font-weight: 400;
+    }
+    .header-title em { font-style: italic; opacity: 0.85; }
+
+    /* ── Instruction banner ── */
+    .banner {
+      position: fixed; top: var(--header-h); left: 0; right: 0;
+      height: var(--banner-h); z-index: 190;
+      background: #4a1a9e;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      padding: 0 1rem;
+    }
+    .banner svg { width: 15px; height: 15px; fill: rgba(255,255,255,0.7); flex-shrink: 0; }
+    .banner p {
+      font-size: 0.82rem; color: rgba(255,255,255,0.9);
+      line-height: 1.3; text-align: center;
+    }
+    .banner strong { font-weight: 500; color: #fff; }
+
+    /* ── Map scroll container ── */
+    .map-container {
+      position: fixed;
+      top: calc(var(--header-h) + var(--banner-h));
+      left: 0; right: 0; bottom: 0;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      background: #1a0a40;
+    }
+
+    /* ── Image wrapper ── */
+    #imageContainer {
+      position: relative;
+      display: inline-block;
+      line-height: 0;
+      min-width: 100%;
+    }
+
+    #mainImage {
+      display: block;
+      width: 100%;
+      height: auto;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* ── Clickable boxes ── */
+    .box {
+      position: absolute;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: box-shadow 0.12s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .box:active {
+      box-shadow: inset 0 0 0 4px rgba(255,255,255,0.6) !important;
+    }
+
+    .box.highlighted {
+      box-shadow: inset 0 0 0 4px #fff, 0 0 0 2px var(--accent);
+    }
+
+    /* ── Bottom sheet ── */
+    .overlay {
+      position: fixed; inset: 0; z-index: 300;
+      background: rgba(0,0,0,0.45);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.28s ease;
+    }
+    .overlay.visible { opacity: 1; pointer-events: all; }
+
+    .bottom-sheet {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 310;
+      background: var(--surface);
+      border-radius: 20px 20px 0 0;
+      padding: 0 1.5rem 2rem;
+      transform: translateY(100%);
+      transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+      box-shadow: 0 -8px 40px rgba(0,0,0,0.25);
+    }
+    .bottom-sheet.visible { transform: translateY(0); }
+
+    .sheet-handle {
+      width: 40px; height: 4px; border-radius: 2px;
+      background: var(--border); margin: 12px auto 1.5rem;
+    }
+
+    .sheet-check-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0.6rem; margin-bottom: 0.5rem;
+    }
+    .sheet-check {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--green-light); display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .sheet-check svg { width: 18px; height: 18px; fill: var(--green); }
+
+    .sheet-copied-label {
+      font-size: 1rem; font-weight: 500; color: var(--green);
+    }
+
+    .sheet-table {
+      text-align: center; margin-bottom: 0.75rem;
+    }
+    .sheet-table-name {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2.8rem; font-weight: 400;
+      color: var(--accent); line-height: 1;
+    }
+    .sheet-table-label {
+      font-size: 0.78rem; color: var(--muted);
+      letter-spacing: 0.08em; text-transform: uppercase; margin-top: 0.2rem;
+    }
+
+    .sheet-instruction {
+      background: var(--accent-light); border-radius: 10px;
+      padding: 0.9rem 1rem; margin-bottom: 1rem;
+      display: flex; align-items: flex-start; gap: 0.6rem;
+    }
+    .sheet-instruction svg { width: 16px; height: 16px; fill: var(--accent); flex-shrink: 0; margin-top: 1px; }
+    .sheet-instruction p { font-size: 0.87rem; color: #3a2560; line-height: 1.6; }
+    .sheet-instruction strong { font-weight: 500; }
+
+    .sheet-message-preview {
+      font-size: 0.78rem; color: var(--muted);
+      background: #f7f5f0; border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.65rem 0.875rem;
+      margin-bottom: 1rem; line-height: 1.5;
+      word-break: break-all;
+    }
+
+    .sheet-btn-row {
+      display: flex; gap: 0.65rem;
+    }
+
+    .btn-secondary {
+      flex: 1; padding: 0.85rem; border-radius: 10px;
+      background: var(--accent-light); color: var(--accent);
+      font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 500;
+      border: none; cursor: pointer; transition: background 0.15s;
+    }
+    .btn-secondary:hover { background: #e4d5f9; }
+
+    .btn-primary {
+      flex: 1.5; padding: 0.85rem; border-radius: 10px;
+      background: var(--accent); color: #fff;
+      font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 500;
+      border: none; cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-primary:hover { background: #7a35e8; }
+    .btn-primary:active { transform: scale(0.97); }
+
+    /* ── Loading state ── */
+    .loading-overlay {
+      position: fixed; inset: 0; z-index: 400;
+      background: #1a0a40;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 1rem;
+      transition: opacity 0.4s ease;
+    }
+    .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+
+    .spinner {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 3px solid rgba(255,255,255,0.15);
+      border-top-color: #fff;
+      animation: spin 0.75s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text {
+      font-size: 0.88rem; color: rgba(255,255,255,0.65);
+    }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; top: calc(var(--header-h) + var(--banner-h) + 12px);
+      left: 50%; transform: translateX(-50%) translateY(-8px);
+      z-index: 500; background: #1a1814; color: #fff;
+      font-size: 0.83rem; font-weight: 500; padding: 0.55rem 1.1rem;
+      border-radius: 20px; white-space: nowrap;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+  <!-- Loading -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p class="loading-text">Loading map…</p>
+  </div>
+
+  <!-- Header -->
+  <div class="header">
+    <a href="index.html" class="header-back">
+      <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+    </a>
+    <div class="header-title">AUTh Library <em>Map</em></div>
+  </div>
+
+  <!-- Instruction banner -->
+  <div class="banner">
+    <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+    <p><strong>Tap your table</strong> on the map to copy your location.</p>
+  </div>
+
+  <!-- Map -->
+  <div class="map-container" id="mapContainer">
+    <div id="imageContainer">
+      <img
+        id="mainImage"
+        src="./auth_library_new.png"
+        alt="AUTh Library floor plan"
+        draggable="false"
+        onerror="this.src='./auth_library.png'"
+      />
+    </div>
+  </div>
+
+  <!-- Overlay + Bottom Sheet -->
+  <div class="overlay" id="overlay" onclick="closeSheet()"></div>
+
+  <div class="bottom-sheet" id="bottomSheet">
+    <div class="sheet-handle"></div>
+
+    <div class="sheet-check-row">
+      <div class="sheet-check">
+        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+      </div>
+      <span class="sheet-copied-label">Message copied!</span>
+    </div>
+
+    <div class="sheet-table">
+      <div class="sheet-table-name" id="sheetTableName">A4</div>
+      <div class="sheet-table-label">Selected table</div>
+    </div>
+
+    <div class="sheet-instruction">
+      <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+      <p>Now go back to your chat and <strong>paste</strong> — your friend will see exactly where you're sitting.</p>
+    </div>
+
+    <div class="sheet-message-preview" id="sheetMessagePreview"></div>
+
+    <div class="sheet-btn-row">
+      <button class="btn-secondary" onclick="copyAgain()">Copy again</button>
+      <button class="btn-primary" onclick="closeSheet()">Done ✓</button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">Copied again!</div>
+
+  <script>
+    // ── Group data (same as Android script) ──────────────────────────────────
+    const groups = [
+      { name: 'A1',  box: { top: 112,  left: 117,  width: 178, height: 23 } },
+      { name: 'A2',  box: { top: 211,  left: 117,  width: 178, height: 23 } },
+      { name: 'A3',  box: { top: 309,  left: 117,  width: 178, height: 23 } },
+      { name: 'A4',  box: { top: 407,  left: 117,  width: 178, height: 23 } },
+      { name: 'A5',  box: { top: 653,  left: 84,   width: 123, height: 23 } },
+      { name: 'A6',  box: { top: 727,  left: 84,   width: 123, height: 23 } },
+      { name: 'A7',  box: { top: 820,  left: 84,   width: 123, height: 23 } },
+      { name: 'A8',  box: { top: 895,  left: 84,   width: 123, height: 23 } },
+      { name: 'A9',  box: { top: 997,  left: 84,   width: 123, height: 23 } },
+      { name: 'A10', box: { top: 1075, left: 84,   width: 123, height: 23 } },
+      { name: 'A11', box: { top: 1158, left: 84,   width: 123, height: 23 } },
+      { name: 'A12', box: { top: 1238, left: 84,   width: 123, height: 23 } },
+      { name: 'A13', box: { top: 1334, left: 84,   width: 123, height: 23 } },
+      { name: 'A14', box: { top: 1406, left: 84,   width: 123, height: 23 } },
+      { name: 'A15', box: { top: 1517, left: 84,   width: 123, height: 23 } },
+      { name: 'A16', box: { top: 1590, left: 84,   width: 123, height: 23 } },
+      { name: 'A17', box: { top: 1710, left: 84,   width: 123, height: 23 } },
+      { name: 'A18', box: { top: 1780, left: 84,   width: 123, height: 23 } },
+      { name: 'B1',  box: { top: 93,   left: 394,  width: 21,  height: 105 } },
+      { name: 'B2',  box: { top: 93,   left: 451,  width: 21,  height: 105 } },
+      { name: 'B3',  box: { top: 316,  left: 394,  width: 21,  height: 105 } },
+      { name: 'B4',  box: { top: 316,  left: 451,  width: 21,  height: 105 } },
+      { name: 'B5',  box: { top: 648,  left: 394,  width: 117, height: 23 } },
+      { name: 'B6',  box: { top: 701,  left: 394,  width: 117, height: 23 } },
+      { name: 'B7',  box: { top: 820,  left: 394,  width: 117, height: 23 } },
+      { name: 'B8',  box: { top: 881,  left: 394,  width: 117, height: 23 } },
+      { name: 'B9',  box: { top: 997,  left: 394,  width: 117, height: 23 } },
+      { name: 'B10', box: { top: 1069, left: 394,  width: 117, height: 23 } },
+      { name: 'B11', box: { top: 1170, left: 394,  width: 117, height: 23 } },
+      { name: 'B12', box: { top: 1238, left: 394,  width: 117, height: 23 } },
+      { name: 'B13', box: { top: 1344, left: 371,  width: 117, height: 23 } },
+      { name: 'B14', box: { top: 1414, left: 371,  width: 117, height: 23 } },
+      { name: 'B15', box: { top: 1506, left: 371,  width: 117, height: 23 } },
+      { name: 'B16', box: { top: 1578, left: 371,  width: 117, height: 23 } },
+      { name: 'C1',  box: { top: 93,   left: 583,  width: 21,  height: 105 } },
+      { name: 'C2',  box: { top: 93,   left: 638,  width: 21,  height: 105 } },
+      { name: 'C3',  box: { top: 316,  left: 583,  width: 21,  height: 105 } },
+      { name: 'C4',  box: { top: 316,  left: 638,  width: 21,  height: 105 } },
+      { name: 'C5',  box: { top: 507,  left: 583,  width: 21,  height: 105 } },
+      { name: 'C6',  box: { top: 507,  left: 638,  width: 21,  height: 105 } },
+      { name: 'C7',  box: { top: 1348, left: 580,  width: 21,  height: 257 } },
+      { name: 'C8',  box: { top: 1348, left: 638,  width: 21,  height: 257 } },
+      { name: 'D1',  box: { top: 93,   left: 772,  width: 21,  height: 105 } },
+      { name: 'D2',  box: { top: 93,   left: 827,  width: 21,  height: 105 } },
+      { name: 'D3',  box: { top: 316,  left: 758,  width: 108, height: 23 } },
+      { name: 'D4',  box: { top: 380,  left: 758,  width: 108, height: 23 } },
+      { name: 'D5',  box: { top: 507,  left: 774,  width: 21,  height: 105 } },
+      { name: 'D6',  box: { top: 507,  left: 837,  width: 21,  height: 105 } },
+      { name: 'D7',  box: { top: 1348, left: 766,  width: 21,  height: 257 } },
+      { name: 'D8',  box: { top: 1348, left: 828,  width: 21,  height: 257 } },
+      { name: 'E1',  box: { top: 93,   left: 970,  width: 21,  height: 105 } },
+      { name: 'E2',  box: { top: 93,   left: 1022, width: 21,  height: 105 } },
+      { name: 'E3',  box: { top: 316,  left: 956,  width: 108, height: 23 } },
+      { name: 'E4',  box: { top: 380,  left: 956,  width: 108, height: 23 } },
+      { name: 'E5',  box: { top: 507,  left: 970,  width: 21,  height: 105 } },
+      { name: 'E6',  box: { top: 507,  left: 1022, width: 21,  height: 105 } },
+      { name: 'E7',  box: { top: 657,  left: 915,  width: 123, height: 29 } },
+      { name: 'E8',  box: { top: 716,  left: 915,  width: 123, height: 29 } },
+      { name: 'E9',  box: { top: 815,  left: 915,  width: 123, height: 29 } },
+      { name: 'E10', box: { top: 882,  left: 915,  width: 123, height: 29 } },
+      { name: 'E11', box: { top: 995,  left: 915,  width: 123, height: 29 } },
+      { name: 'E12', box: { top: 1055, left: 915,  width: 123, height: 29 } },
+      { name: 'E13', box: { top: 1157, left: 915,  width: 123, height: 29 } },
+      { name: 'E14', box: { top: 1231, left: 915,  width: 123, height: 29 } },
+      { name: 'E15', box: { top: 1333, left: 952,  width: 123, height: 29 } },
+      { name: 'E16', box: { top: 1408, left: 952,  width: 123, height: 29 } },
+      { name: 'E17', box: { top: 1492, left: 969,  width: 29,  height: 109 } },
+      { name: 'E18', box: { top: 1492, left: 1024, width: 26,  height: 109 } },
+      { name: 'F1',  box: { top: 126,  left: 1201, width: 123, height: 29 } },
+      { name: 'F2',  box: { top: 202,  left: 1201, width: 123, height: 29 } },
+      { name: 'F3',  box: { top: 317,  left: 1198, width: 123, height: 29 } },
+      { name: 'F4',  box: { top: 392,  left: 1198, width: 123, height: 29 } },
+      { name: 'F5',  box: { top: 477,  left: 1198, width: 123, height: 29 } },
+      { name: 'F6',  box: { top: 555,  left: 1198, width: 123, height: 29 } },
+      { name: 'F7',  box: { top: 656,  left: 1198, width: 123, height: 29 } },
+      { name: 'F8',  box: { top: 727,  left: 1198, width: 123, height: 29 } },
+      { name: 'F9',  box: { top: 815,  left: 1198, width: 123, height: 29 } },
+      { name: 'F10', box: { top: 882,  left: 1198, width: 123, height: 29 } },
+      { name: 'F11', box: { top: 995,  left: 1198, width: 123, height: 29 } },
+      { name: 'F12', box: { top: 1055, left: 1198, width: 123, height: 29 } },
+      { name: 'F13', box: { top: 1156, left: 1198, width: 123, height: 29 } },
+      { name: 'F14', box: { top: 1231, left: 1198, width: 123, height: 29 } },
+      { name: 'F15', box: { top: 1335, left: 1195, width: 123, height: 29 } },
+      { name: 'F16', box: { top: 1406, left: 1195, width: 123, height: 29 } },
+      { name: 'F17', box: { top: 1520, left: 1198, width: 123, height: 29 } },
+      { name: 'F18', box: { top: 1602, left: 1198, width: 123, height: 29 } },
+      { name: 'F19', box: { top: 1705, left: 1198, width: 123, height: 29 } },
+      { name: 'F20', box: { top: 1779, left: 1198, width: 123, height: 29 } }
+    ];
+
+    // ── State ────────────────────────────────────────────────────────────────
+    let currentScale = 1;
+    let selectedBox = null;
+    let currentMessage = '';
+
+    // ── Scale & box positioning ──────────────────────────────────────────────
+    function updateScale() {
+      const img = document.getElementById('mainImage');
+      if (!img.naturalWidth) return;
+      currentScale = img.clientWidth / img.naturalWidth;
+      positionAllBoxes();
+    }
+
+    function positionAllBoxes() {
+      document.querySelectorAll('.box').forEach(box => {
+        const g = box._group;
+        box.style.top    = (g.box.top    * currentScale) + 'px';
+        box.style.left   = (g.box.left   * currentScale) + 'px';
+        box.style.width  = (g.box.width  * currentScale) + 'px';
+        box.style.height = (g.box.height * currentScale) + 'px';
+      });
+    }
+
+    // ── Create boxes ─────────────────────────────────────────────────────────
+    function createBoxes() {
+      const container = document.getElementById('imageContainer');
+      groups.forEach(group => {
+        const box = document.createElement('div');
+        box.className = 'box';
+        box._group = group;
+
+        // Tap / click
+        box.addEventListener('click', (e) => {
+          e.stopPropagation();
+          handleTableTap(group.name, box);
+        });
+
+        container.appendChild(box);
+      });
+    }
+
+    // ── Handle tap ──────────────────────────────────────────────────────────
+    function handleTableTap(groupName, boxEl) {
+      // Unhighlight previous
+      if (selectedBox) selectedBox.classList.remove('highlighted');
+
+      // Highlight new
+      boxEl.classList.add('highlighted');
+      boxEl.style.boxShadow = 'inset 0 0 0 4px #ffffff, 0 0 0 3px #6323ca';
+      selectedBox = boxEl;
+
+      // Build message
+      const deepLink = `https://panagiotispetrid.github.io/AUTh_Library_Web/${groupName}`;
+      currentMessage = `I'm sitting at table ${groupName}! Tap here to find me: ${deepLink}`;
+
+      // Copy to clipboard
+      copyToClipboard(currentMessage);
+
+      // Update sheet
+      document.getElementById('sheetTableName').textContent = groupName;
+      document.getElementById('sheetMessagePreview').textContent = currentMessage;
+
+      // Show sheet
+      openSheet();
+    }
+
+    // ── Clipboard ────────────────────────────────────────────────────────────
+    function copyToClipboard(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+      document.body.appendChild(ta);
+      ta.focus(); ta.select();
+      try { document.execCommand('copy'); } catch (_) {}
+      document.body.removeChild(ta);
+    }
+
+    function copyAgain() {
+      copyToClipboard(currentMessage);
+      showToast();
+    }
+
+    // ── Sheet ────────────────────────────────────────────────────────────────
+    function openSheet() {
+      document.getElementById('overlay').classList.add('visible');
+      document.getElementById('bottomSheet').classList.add('visible');
+    }
+
+    function closeSheet() {
+      document.getElementById('overlay').classList.remove('visible');
+      document.getElementById('bottomSheet').classList.remove('visible');
+    }
+
+    // ── Toast ────────────────────────────────────────────────────────────────
+    let toastTimer;
+    function showToast() {
+      const t = document.getElementById('toast');
+      t.classList.add('visible');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('visible'), 2000);
+    }
+
+    // ── Init ─────────────────────────────────────────────────────────────────
+    window.addEventListener('DOMContentLoaded', () => {
+      createBoxes();
+
+      const img = document.getElementById('mainImage');
+      const loader = document.getElementById('loadingOverlay');
+
+      img.addEventListener('load', () => {
+        updateScale();
+        loader.classList.add('hidden');
+        setTimeout(() => loader.style.display = 'none', 450);
+      });
+
+      // Image may already be cached and load before listener fires
+      if (img.complete && img.naturalWidth) {
+        updateScale();
+        loader.classList.add('hidden');
+        setTimeout(() => loader.style.display = 'none', 200);
+      }
+
+      window.addEventListener('resize', updateScale);
+
+      // Register service worker for image caching
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js', { scope: './' })
+          .catch(err => console.warn('SW registration failed:', err));
+      }
+    });
+  </script>
+</body>
+</html>
