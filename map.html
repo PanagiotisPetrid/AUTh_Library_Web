@@ -763,6 +763,45 @@
         navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(() => {});
       }
     });
+
+    // ── Drag-to-dismiss for all bottom sheets ─────────────────────────────────
+    function addDragToDismiss(sheetId, closeFn) {
+      const sheet = document.getElementById(sheetId);
+      let startY = 0, currentY = 0, dragging = false;
+    
+      sheet.addEventListener('touchstart', e => {
+        startY   = e.touches[0].clientY;
+        currentY = startY;
+        dragging = true;
+        sheet.style.transition = 'none';  // disable CSS transition while dragging
+      }, { passive: true });
+    
+      sheet.addEventListener('touchmove', e => {
+        if (!dragging) return;
+        currentY = e.touches[0].clientY;
+        const delta = Math.max(0, currentY - startY);  // only allow downward drag
+        sheet.style.transform = `translateY(${delta}px)`;
+      }, { passive: true });
+    
+      sheet.addEventListener('touchend', () => {
+        if (!dragging) return;
+        dragging = false;
+        sheet.style.transition = '';  // restore CSS transition
+    
+        const delta = currentY - startY;
+        if (delta > 80) {
+          // dragged down far enough — dismiss
+          sheet.style.transform = '';
+          closeFn();
+        } else {
+          // not far enough — snap back
+          sheet.style.transform = '';
+        }
+      });
+    }
+    
+    addDragToDismiss('downloadSheet', closeDownloadSheet);
+    addDragToDismiss('responseSheet', closeResponseSheet);
   </script>
 </body>
 </html>
