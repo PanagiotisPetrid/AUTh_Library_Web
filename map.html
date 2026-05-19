@@ -18,105 +18,214 @@
       --border: #e3e0d8;
       --green: #1a7a4a;
       --green-light: #eaf6f0;
-      --amber: #7a4f0a;
-      --amber-light: #fdf4e3;
       --header-h: 52px;
       --banner-h: 46px;
     }
 
-    html, body { height: 100%; overflow: hidden; font-family: 'DM Sans', sans-serif; font-weight: 300; background: #1a0a40; }
+    html, body {
+      height: 100%; overflow: hidden;
+      font-family: 'DM Sans', sans-serif; font-weight: 300;
+      background: #1a0a40;
+    }
 
     /* ── Header ── */
     .header {
-      position: fixed; top: 0; left: 0; right: 0; height: var(--header-h); z-index: 200;
-      background: var(--accent); display: flex; align-items: center; gap: 0.6rem;
-      padding: 0 1rem; box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+      position: fixed; top: 0; left: 0; right: 0;
+      height: var(--header-h); z-index: 200;
+      background: var(--accent);
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0 1rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
     }
     .header-back {
       display: inline-flex; align-items: center; justify-content: center;
-      width: 34px; height: 34px; border-radius: 8px; background: rgba(255,255,255,0.15);
-      color: #fff; text-decoration: none; flex-shrink: 0; transition: background 0.15s;
+      width: 34px; height: 34px; border-radius: 8px;
+      background: rgba(255,255,255,0.15);
+      color: #fff; text-decoration: none; flex-shrink: 0;
+      transition: background 0.15s;
     }
     .header-back:hover { background: rgba(255,255,255,0.25); }
     .header-back svg { width: 18px; height: 18px; fill: currentColor; }
-    .header-title { font-family: 'DM Serif Display', serif; font-size: 1.1rem; color: #fff; font-weight: 400; }
+    .header-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.1rem; color: #fff; font-weight: 400;
+    }
     .header-title em { font-style: italic; opacity: 0.8; }
 
     /* ── Banner ── */
     .banner {
-      position: fixed; top: var(--header-h); left: 0; right: 0; height: var(--banner-h);
-      z-index: 190; display: flex; align-items: center; justify-content: center; gap: 0.45rem; padding: 0 1rem;
+      position: fixed; top: var(--header-h); left: 0; right: 0;
+      height: var(--banner-h); z-index: 190;
+      display: flex; align-items: center; justify-content: center;
+      gap: 0.45rem; padding: 0 1rem;
     }
     .banner.response-mode { background: #4a1a9e; }
-    .banner.view-mode    { background: #1a5c3a; }
+    .banner.view-mode     { background: #1a5c3a; }
     .banner svg { width: 14px; height: 14px; fill: rgba(255,255,255,0.75); flex-shrink: 0; }
     .banner p { font-size: 0.81rem; color: rgba(255,255,255,0.92); text-align: center; line-height: 1.3; }
     .banner p strong { font-weight: 500; color: #fff; }
 
     /* ── Map container ── */
     .map-container {
-      position: fixed; top: calc(var(--header-h) + var(--banner-h)); left: 0; right: 0; bottom: 0;
-      overflow: auto; -webkit-overflow-scrolling: touch; background: #1a0a40;
+      position: fixed;
+      top: calc(var(--header-h) + var(--banner-h));
+      left: 0; right: 0; bottom: 0;
+      overflow: auto; -webkit-overflow-scrolling: touch;
+      background: #1a0a40;
     }
-    /* In view mode, leave room for the bottom strip */
     .map-container.has-strip { bottom: 52px; }
 
-    #imageContainer { position: relative; display: inline-block; line-height: 0; min-width: 100%; }
-    #mainImage { display: block; width: 100%; height: auto; user-select: none; -webkit-user-select: none; }
+    /* ── Image wrapper ── */
+    #imageContainer {
+      position: relative; display: inline-block;
+      line-height: 0; min-width: 100%;
+    }
+    #mainImage {
+      display: block; width: 100%; height: auto;
+      user-select: none; -webkit-user-select: none;
+    }
 
-    /* ── Boxes ── */
+    /* ── Hit boxes ── */
     .box {
       position: absolute; border-radius: 3px;
-      transition: box-shadow 0.12s; -webkit-tap-highlight-color: transparent;
+      transition: box-shadow 0.12s;
+      -webkit-tap-highlight-color: transparent;
     }
     .box.tappable { cursor: pointer; }
     .box.tappable:active { box-shadow: inset 0 0 0 4px rgba(255,255,255,0.5) !important; }
-    .box.highlighted-response { box-shadow: inset 0 0 0 5px #ffffff, 0 0 0 3px var(--accent); }
-    .box.highlighted-view     { box-shadow: inset 0 0 0 5px #22c55e, 0 0 0 4px #16a34a, 0 0 20px 4px rgba(34,197,94,0.4); }
 
-    /* ── Overlay + sheet ── */
+    /* highlight styles — NO popup from here */
+    .box.highlighted-response {
+      box-shadow: inset 0 0 0 4px #ffffff, 0 0 0 3px var(--accent);
+    }
+    .box.highlighted-view {
+      box-shadow:
+        inset 0 0 0 4px #22c55e,
+        0 0 0 3px #16a34a,
+        0 0 16px 4px rgba(34,197,94,0.35);
+    }
+
+    /* ── Table label tooltip ─────────────────────────────────────────────
+       Positioned absolutely inside #imageContainer by JS.
+       Sizes are in CSS px but scaled by JS using the same ratio as the boxes.
+    ─────────────────────────────────────────────────────────────────────── */
+    .table-label {
+      position: absolute;
+      z-index: 50;
+      pointer-events: none;
+      transform: translate(-50%, -100%);   /* anchor bottom-centre to the point */
+      display: flex; flex-direction: column; align-items: center;
+    }
+
+    .table-label-bubble {
+      background: #ffffff;
+      color: var(--accent);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      white-space: nowrap;
+      border-radius: 6px;
+      /* size set dynamically in JS based on scale */
+      line-height: 1;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    /* downward-pointing triangle */
+    .table-label-arrow {
+      width: 0; height: 0;
+      border-left: solid transparent;
+      border-right: solid transparent;
+      border-top: solid #ffffff;
+      /* sizes set dynamically in JS */
+    }
+
+    /* ── Overlay ── */
     .overlay {
-      position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.45);
-      opacity: 0; pointer-events: none; transition: opacity 0.28s ease;
+      position: fixed; inset: 0; z-index: 300;
+      background: rgba(0,0,0,0.45);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.28s ease;
     }
     .overlay.visible { opacity: 1; pointer-events: all; }
 
-    .bottom-sheet {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 310; background: var(--surface);
-      border-radius: 20px 20px 0 0; padding: 0 1.5rem 2rem;
-      transform: translateY(100%); transition: transform 0.32s cubic-bezier(0.32,0.72,0,1);
+    /* ── Bottom sheet (shared base) ── */
+    .sheet-base {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 310;
+      background: var(--surface); border-radius: 20px 20px 0 0;
+      padding: 0 1.5rem 2rem;
+      transform: translateY(100%);
+      transition: transform 0.32s cubic-bezier(0.32,0.72,0,1);
       box-shadow: 0 -8px 40px rgba(0,0,0,0.25);
     }
-    .bottom-sheet.visible { transform: translateY(0); }
+    .sheet-base.visible { transform: translateY(0); }
 
-    .sheet-handle { width: 40px; height: 4px; border-radius: 2px; background: var(--border); margin: 12px auto 1.25rem; }
+    .sheet-handle {
+      width: 40px; height: 4px; border-radius: 2px;
+      background: var(--border); margin: 12px auto 1.25rem;
+    }
 
-    /* Response confirmation sheet */
-    .sheet-check-row { display: flex; align-items: center; justify-content: center; gap: 0.6rem; margin-bottom: 0.5rem; }
-    .sheet-check { width: 34px; height: 34px; border-radius: 50%; background: var(--green-light); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    /* Response sheet */
+    .sheet-check-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0.6rem; margin-bottom: 0.5rem;
+    }
+    .sheet-check {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--green-light);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
     .sheet-check svg { width: 17px; height: 17px; fill: var(--green); }
     .sheet-copied-label { font-size: 0.97rem; font-weight: 500; color: var(--green); }
+
     .sheet-table { text-align: center; margin-bottom: 0.75rem; }
-    .sheet-table-name { font-family: 'DM Serif Display', serif; font-size: 2.6rem; font-weight: 400; color: var(--accent); line-height: 1; }
-    .sheet-table-label { font-size: 0.76rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 0.15rem; }
-    .sheet-instruction { background: var(--accent-light); border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 0.9rem; display: flex; align-items: flex-start; gap: 0.55rem; }
+    .sheet-table-name {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2.6rem; font-weight: 400; color: var(--accent); line-height: 1;
+    }
+    .sheet-table-label {
+      font-size: 0.76rem; color: var(--muted);
+      letter-spacing: 0.08em; text-transform: uppercase; margin-top: 0.15rem;
+    }
+
+    .sheet-instruction {
+      background: var(--accent-light); border-radius: 10px;
+      padding: 0.85rem 1rem; margin-bottom: 0.9rem;
+      display: flex; align-items: flex-start; gap: 0.55rem;
+    }
     .sheet-instruction svg { width: 15px; height: 15px; fill: var(--accent); flex-shrink: 0; margin-top: 1px; }
     .sheet-instruction p { font-size: 0.85rem; color: #3a2560; line-height: 1.6; }
     .sheet-instruction strong { font-weight: 500; }
-    .sheet-message-preview { font-size: 0.76rem; color: var(--muted); background: #f7f5f0; border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 0.85rem; margin-bottom: 0.9rem; line-height: 1.5; word-break: break-all; }
+
+    .sheet-message-preview {
+      font-size: 0.76rem; color: var(--muted);
+      background: #f7f5f0; border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.6rem 0.85rem;
+      margin-bottom: 0.9rem; line-height: 1.5; word-break: break-all;
+    }
+
     .sheet-btn-row { display: flex; gap: 0.6rem; }
-    .btn-secondary { flex: 1; padding: 0.82rem; border-radius: 10px; background: var(--accent-light); color: var(--accent); font-family: 'DM Sans', sans-serif; font-size: 0.86rem; font-weight: 500; border: none; cursor: pointer; transition: background 0.15s; }
+    .btn-secondary {
+      flex: 1; padding: 0.82rem; border-radius: 10px;
+      background: var(--accent-light); color: var(--accent);
+      font-family: 'DM Sans', sans-serif; font-size: 0.86rem; font-weight: 500;
+      border: none; cursor: pointer; transition: background 0.15s;
+    }
     .btn-secondary:hover { background: #e4d5f9; }
-    .btn-primary { flex: 1.5; padding: 0.82rem; border-radius: 10px; background: var(--accent); color: #fff; font-family: 'DM Sans', sans-serif; font-size: 0.86rem; font-weight: 500; border: none; cursor: pointer; transition: background 0.15s, transform 0.1s; }
+    .btn-primary {
+      flex: 1.5; padding: 0.82rem; border-radius: 10px;
+      background: var(--accent); color: #fff;
+      font-family: 'DM Sans', sans-serif; font-size: 0.86rem; font-weight: 500;
+      border: none; cursor: pointer; transition: background 0.15s, transform 0.1s;
+    }
     .btn-primary:hover { background: #7a35e8; }
     .btn-primary:active { transform: scale(0.97); }
 
-    /* ── View mode: bottom strip ── */
+    /* ── View mode bottom strip ── */
     .view-strip {
-      position: fixed; bottom: 0; left: 0; right: 0; height: 52px; z-index: 200;
-      background: var(--accent); display: flex; align-items: center; justify-content: space-between;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      height: 52px; z-index: 200;
+      background: var(--accent);
+      display: none; align-items: center; justify-content: space-between;
       padding: 0 1.1rem; cursor: pointer; transition: background 0.15s;
-      display: none;
     }
     .view-strip.visible { display: flex; }
     .view-strip:hover { background: #7a35e8; }
@@ -125,18 +234,29 @@
     .view-strip-left span { font-size: 0.84rem; color: rgba(255,255,255,0.9); font-weight: 500; }
     .view-strip-right svg { width: 16px; height: 16px; fill: rgba(255,255,255,0.6); }
 
-    /* ── Download sheet (view mode) ── */
-    .download-sheet { position: fixed; bottom: 0; left: 0; right: 0; z-index: 310; background: var(--surface); border-radius: 20px 20px 0 0; padding: 0 1.5rem 2.5rem; transform: translateY(100%); transition: transform 0.32s cubic-bezier(0.32,0.72,0,1); box-shadow: 0 -8px 40px rgba(0,0,0,0.3); }
-    .download-sheet.visible { transform: translateY(0); }
-
+    /* ── Download sheet ── */
     .friend-table-display { text-align: center; margin-bottom: 1.1rem; }
-    .friend-label { font-size: 0.72rem; font-weight: 500; letter-spacing: 0.11em; text-transform: uppercase; color: var(--green); background: var(--green-light); display: inline-block; padding: 0.28rem 0.75rem; border-radius: 2rem; margin-bottom: 0.6rem; }
-    .friend-table-name { font-family: 'DM Serif Display', serif; font-size: 3rem; font-weight: 400; color: var(--ink); line-height: 1; }
+    .friend-label {
+      font-size: 0.72rem; font-weight: 500; letter-spacing: 0.11em;
+      text-transform: uppercase; color: var(--green); background: var(--green-light);
+      display: inline-block; padding: 0.28rem 0.75rem;
+      border-radius: 2rem; margin-bottom: 0.6rem;
+    }
+    .friend-table-name {
+      font-family: 'DM Serif Display', serif;
+      font-size: 3rem; font-weight: 400; color: var(--ink); line-height: 1;
+    }
     .friend-table-sub { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
 
     .download-divider { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
 
-    .download-cta-title { font-family: 'DM Serif Display', serif; font-size: 1.2rem; font-weight: 400; color: var(--ink); margin-bottom: 0.8rem; text-align: center; }
+    .download-cta-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.2rem; font-weight: 400; color: var(--ink);
+      margin-bottom: 0.8rem; text-align: center;
+    }
+    .download-cta-title em { font-style: italic; color: var(--accent); }
+
     .feature-list { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.1rem; }
     .feature-row { display: flex; align-items: center; gap: 0.65rem; }
     .feature-row svg { width: 16px; height: 16px; fill: var(--accent); flex-shrink: 0; }
@@ -145,26 +265,39 @@
     .play-badge-link { display: block; margin: 0 auto; width: fit-content; }
     .play-badge-link img { height: 56px; width: auto; display: block; }
 
-    .download-close-btn { display: block; text-align: center; margin-top: 0.75rem; font-size: 0.82rem; color: var(--muted); cursor: pointer; text-decoration: underline; }
+    .download-close-btn {
+      display: block; text-align: center; margin-top: 0.75rem;
+      font-size: 0.82rem; color: var(--muted); cursor: pointer; text-decoration: underline;
+    }
 
     /* ── Loading ── */
     .loading-overlay {
-      position: fixed; inset: 0; z-index: 400; background: #1a0a40;
-      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.9rem;
+      position: fixed; inset: 0; z-index: 400;
+      background: #1a0a40;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 0.9rem;
       transition: opacity 0.4s ease;
     }
     .loading-overlay.hidden { opacity: 0; pointer-events: none; }
-    .spinner { width: 34px; height: 34px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.15); border-top-color: #fff; animation: spin 0.75s linear infinite; }
+    .spinner {
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 3px solid rgba(255,255,255,0.15);
+      border-top-color: #fff;
+      animation: spin 0.75s linear infinite;
+    }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-text { font-size: 0.86rem; color: rgba(255,255,255,0.6); }
 
     /* ── Toast ── */
     .toast {
-      position: fixed; top: calc(var(--header-h) + var(--banner-h) + 10px);
+      position: fixed;
+      top: calc(var(--header-h) + var(--banner-h) + 10px);
       left: 50%; transform: translateX(-50%) translateY(-6px);
-      z-index: 500; background: #1a1814; color: #fff; font-size: 0.82rem; font-weight: 500;
+      z-index: 500; background: #1a1814; color: #fff;
+      font-size: 0.82rem; font-weight: 500;
       padding: 0.5rem 1rem; border-radius: 20px; white-space: nowrap;
-      opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
     }
     .toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
@@ -183,7 +316,6 @@
     <div class="header-title">AUTh Library <em>Map</em></div>
   </div>
 
-  <!-- Banner: text set by JS based on mode -->
   <div class="banner response-mode" id="banner">
     <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
     <p id="bannerText"><strong>Tap your table</strong> — your location will be copied automatically.</p>
@@ -195,12 +327,14 @@
     </div>
   </div>
 
-  <!-- Response mode: copy confirmation overlay + sheet -->
-  <div class="overlay" id="overlay" onclick="closeResponseSheet()"></div>
-  <div class="bottom-sheet" id="responseSheet">
+  <!-- Response mode sheet -->
+  <div class="overlay" id="responseOverlay" onclick="closeResponseSheet()"></div>
+  <div class="sheet-base" id="responseSheet">
     <div class="sheet-handle"></div>
     <div class="sheet-check-row">
-      <div class="sheet-check"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+      <div class="sheet-check">
+        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+      </div>
       <span class="sheet-copied-label">Message copied!</span>
     </div>
     <div class="sheet-table">
@@ -218,28 +352,25 @@
     </div>
   </div>
 
-  <!-- View mode: bottom strip (always visible) -->
+  <!-- View mode bottom strip -->
   <div class="view-strip" id="viewStrip" onclick="openDownloadSheet()">
     <div class="view-strip-left">
       <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
       <span>Get the app to share your own location</span>
     </div>
-    <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
+    <svg viewBox="0 0 24 24" width="16" height="16" style="fill:rgba(255,255,255,0.6);flex-shrink:0"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
   </div>
 
-  <!-- View mode: download sheet -->
+  <!-- Download sheet -->
   <div class="overlay" id="downloadOverlay" onclick="closeDownloadSheet()"></div>
-  <div class="download-sheet" id="downloadSheet">
+  <div class="sheet-base" id="downloadSheet">
     <div class="sheet-handle"></div>
-
     <div class="friend-table-display">
       <div class="friend-label">📍 Your friend is here</div>
       <div class="friend-table-name" id="friendTableName">A4</div>
       <div class="friend-table-sub">Scroll the map above to see the exact seat</div>
     </div>
-
     <hr class="download-divider" />
-
     <p class="download-cta-title">Get more with the <em>full app</em></p>
     <div class="feature-list">
       <div class="feature-row">
@@ -252,7 +383,7 @@
       </div>
       <div class="feature-row">
         <svg viewBox="0 0 24 24"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/></svg>
-        <span><strong>Utility map</strong> — see fire exits, facilities, and key areas</span>
+        <span><strong>Utility map</strong> — fire exits, facilities and key areas</span>
       </div>
       <div class="feature-row">
         <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
@@ -260,14 +391,13 @@
       </div>
       <div class="feature-row">
         <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
-        <span><strong>Share a screenshot</strong> — send a visual of your exact spot</span>
+        <span><strong>One-tap sharing</strong> — send your seat or a screenshot to anyone</span>
       </div>
     </div>
-
     <a href="https://play.google.com/store/apps/details?id=com.smartunilabs.findme" class="play-badge-link" target="_blank">
       <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" />
     </a>
-    <span class="download-close-btn" onclick="closeDownloadSheet()">Close</span>
+    <span class="download-close-btn" onclick="closeDownloadSheet()">No thanks, just show me the map</span>
   </div>
 
   <div class="toast" id="toast">Copied again!</div>
@@ -370,17 +500,22 @@
       { name: 'F20', box: { top: 1779, left: 1198, width: 123, height: 29 } }
     ];
 
+    // Native image dimensions (used as coordinate reference)
+    const IMG_W = 1406;
+
     // ── State ───────────────────────────────────────────────────────────────
     let currentScale   = 1;
     let selectedBoxEl  = null;
+    let activeLabelEl  = null;
     let currentMessage = '';
 
-    // ── Scale ───────────────────────────────────────────────────────────────
+    // ── Scale helpers ────────────────────────────────────────────────────────
     function updateScale() {
       const img = document.getElementById('mainImage');
       if (!img.naturalWidth) return;
       currentScale = img.clientWidth / img.naturalWidth;
       positionAllBoxes();
+      if (activeLabelEl) repositionLabel(activeLabelEl);
     }
 
     function positionAllBoxes() {
@@ -393,7 +528,89 @@
       });
     }
 
-    // ── Create boxes ────────────────────────────────────────────────────────
+    // ── Tooltip label ────────────────────────────────────────────────────────
+    /**
+     * Creates (or reuses) a compact white tooltip anchored above a box.
+     * Font and padding scale with the image so it's always proportional.
+     */
+    function placeLabel(group, colorClass) {
+      // Remove any existing label
+      removeLabel();
+
+      const container = document.getElementById('imageContainer');
+      const g = group.box;
+
+      // Compute scaled positions
+      const cx = (g.left + g.width  / 2) * currentScale;   // horizontal centre of box
+      const ty = g.top * currentScale;                       // top edge of box (label sits above)
+
+      // Scale font/padding relative to image width
+      const fontSize   = Math.max(9,  Math.round(13 * currentScale));
+      const padV       = Math.max(3,  Math.round(5  * currentScale));
+      const padH       = Math.max(5,  Math.round(9  * currentScale));
+      const arrowSize  = Math.max(4,  Math.round(6  * currentScale));
+      const gap        = Math.max(2,  Math.round(3  * currentScale));  // space between box top and arrow tip
+
+      const label = document.createElement('div');
+      label.className = 'table-label';
+      label.style.left = cx + 'px';
+      label.style.top  = (ty - gap) + 'px';
+
+      const bubble = document.createElement('div');
+      bubble.className = 'table-label-bubble';
+      bubble.textContent = group.name;
+      bubble.style.fontSize   = fontSize + 'px';
+      bubble.style.padding    = `${padV}px ${padH}px`;
+      // colour tint based on mode
+      bubble.style.color      = colorClass === 'view' ? '#1a7a4a' : '#6323ca';
+
+      const arrow = document.createElement('div');
+      arrow.className = 'table-label-arrow';
+      arrow.style.borderLeftWidth  = arrowSize + 'px';
+      arrow.style.borderRightWidth = arrowSize + 'px';
+      arrow.style.borderTopWidth   = arrowSize + 'px';
+      // arrow is always white to match bubble
+      arrow.style.borderTopColor   = '#ffffff';
+
+      label.appendChild(bubble);
+      label.appendChild(arrow);
+      container.appendChild(label);
+      activeLabelEl = label;
+
+      return label;
+    }
+
+    function repositionLabel(label) {
+      // Called on resize — just re-run placeLabel for the selected group
+      if (!selectedBoxEl) return;
+      const g = selectedBoxEl._group;
+      const cx = (g.box.left + g.box.width  / 2) * currentScale;
+      const ty = g.box.top * currentScale;
+      const gap = Math.max(2, Math.round(3 * currentScale));
+      label.style.left = cx + 'px';
+      label.style.top  = (ty - gap) + 'px';
+
+      // Re-scale bubble text and arrow
+      const fontSize  = Math.max(9, Math.round(13 * currentScale));
+      const padV      = Math.max(3, Math.round(5  * currentScale));
+      const padH      = Math.max(5, Math.round(9  * currentScale));
+      const arrowSize = Math.max(4, Math.round(6  * currentScale));
+
+      const bubble = label.querySelector('.table-label-bubble');
+      const arrow  = label.querySelector('.table-label-arrow');
+      if (bubble) { bubble.style.fontSize = fontSize + 'px'; bubble.style.padding = `${padV}px ${padH}px`; }
+      if (arrow)  {
+        arrow.style.borderLeftWidth  = arrowSize + 'px';
+        arrow.style.borderRightWidth = arrowSize + 'px';
+        arrow.style.borderTopWidth   = arrowSize + 'px';
+      }
+    }
+
+    function removeLabel() {
+      if (activeLabelEl) { activeLabelEl.remove(); activeLabelEl = null; }
+    }
+
+    // ── Create boxes ─────────────────────────────────────────────────────────
     function createBoxes() {
       const container = document.getElementById('imageContainer');
       groups.forEach(group => {
@@ -412,24 +629,25 @@
       });
     }
 
-    // ── Response mode: tap handler ───────────────────────────────────────────
+    // ── Response mode ────────────────────────────────────────────────────────
     function handleTableTap(groupName, boxEl) {
-      // Unhighlight previous
       if (selectedBoxEl) selectedBoxEl.classList.remove('highlighted-response');
       boxEl.classList.add('highlighted-response');
       selectedBoxEl = boxEl;
+
+      // Place label
+      placeLabel(boxEl._group, 'response');
 
       const deepLink = `https://panagiotispetrid.github.io/AUTh_Library_Web/${groupName}`;
       currentMessage = `I'm sitting at table ${groupName}! Come join me: ${deepLink}`;
 
       copyToClipboard(currentMessage);
-
       document.getElementById('sheetTableName').textContent = groupName;
       document.getElementById('sheetMessagePreview').textContent = currentMessage;
       openResponseSheet();
     }
 
-    // ── View mode: highlight & scroll ────────────────────────────────────────
+    // ── View mode ────────────────────────────────────────────────────────────
     function initViewMode() {
       // Update banner
       const banner = document.getElementById('banner');
@@ -437,40 +655,38 @@
       document.getElementById('bannerText').innerHTML =
         `📍 Your friend is at table <strong>${viewTable}</strong>`;
 
-      // Update friend table display in download sheet
+      // Update download sheet header
       document.getElementById('friendTableName').textContent = viewTable;
 
-      // Shrink map container for bottom strip
+      // Shrink map for strip
       document.getElementById('mapContainer').classList.add('has-strip');
-
-      // Show bottom strip
       document.getElementById('viewStrip').classList.add('visible');
 
-      // Highlight the table
-      const boxes = document.querySelectorAll('.box');
-      boxes.forEach(box => {
+      // Highlight and label the table
+      document.querySelectorAll('.box').forEach(box => {
         if (box._group.name === viewTable) {
           box.classList.add('highlighted-view');
           selectedBoxEl = box;
+          placeLabel(box._group, 'view');
         }
       });
 
-      // Scroll to highlighted table after a brief moment
+      // Scroll to highlighted table
       setTimeout(scrollToHighlighted, 300);
 
-      // Auto-show download sheet after a delay
+      // Show download sheet after 3 seconds
       setTimeout(() => {
         document.getElementById('downloadOverlay').classList.add('visible');
         document.getElementById('downloadSheet').classList.add('visible');
-      }, 900);
+      }, 3000);
     }
 
     function scrollToHighlighted() {
       if (!selectedBoxEl) return;
       const g = selectedBoxEl._group;
       const container = document.getElementById('mapContainer');
-      const cx = g.box.left * currentScale + (g.box.width  * currentScale) / 2;
-      const cy = g.box.top  * currentScale + (g.box.height * currentScale) / 2;
+      const cx = (g.box.left + g.box.width  / 2) * currentScale;
+      const cy = (g.box.top  + g.box.height / 2) * currentScale;
       container.scrollTo({
         left: cx - container.clientWidth  / 2,
         top:  cy - container.clientHeight / 2,
@@ -495,27 +711,21 @@
       document.body.removeChild(ta);
     }
 
-    function copyAgain() {
-      copyToClipboard(currentMessage);
-      showToast();
-    }
+    function copyAgain() { copyToClipboard(currentMessage); showToast(); }
 
     // ── Sheets ───────────────────────────────────────────────────────────────
     function openResponseSheet() {
-      document.getElementById('overlay').classList.add('visible');
+      document.getElementById('responseOverlay').classList.add('visible');
       document.getElementById('responseSheet').classList.add('visible');
     }
-
     function closeResponseSheet() {
-      document.getElementById('overlay').classList.remove('visible');
+      document.getElementById('responseOverlay').classList.remove('visible');
       document.getElementById('responseSheet').classList.remove('visible');
     }
-
     function openDownloadSheet() {
       document.getElementById('downloadOverlay').classList.add('visible');
       document.getElementById('downloadSheet').classList.add('visible');
     }
-
     function closeDownloadSheet() {
       document.getElementById('downloadOverlay').classList.remove('visible');
       document.getElementById('downloadSheet').classList.remove('visible');
@@ -549,10 +759,8 @@
 
       window.addEventListener('resize', updateScale);
 
-      // Register service worker
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js', { scope: './' })
-          .catch(() => {});
+        navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(() => {});
       }
     });
   </script>
