@@ -67,5 +67,5 @@ The app is currently in closed testing on Google Play. If you're an AUTh student
 
 ## Author
 
-Built by Panagiotis Petridis — ECE student at AUTh.  
-Contact: [smart.unilabs@gmail.com](mailto:smart.unilabs@gmail.com)
+Built and maintained by [SmartUniLabs](mailto:smart.unilabs@gmail.com) —
+an independent student project at the Aristotle University of Thessaloniki.
