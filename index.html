@@ -33,13 +33,22 @@
       from { opacity: 0; transform: translateY(18px); }
       to   { opacity: 1; transform: translateY(0); }
     }
+    /* lang toggle sits top-right inside card */
+    .card-toprow { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.6rem; }
     .app-badge {
       display: inline-flex; align-items: center; gap: 0.45rem;
       font-size: 0.7rem; font-weight: 500; letter-spacing: 0.13em;
       text-transform: uppercase; color: var(--accent); background: var(--accent-light);
-      padding: 0.32rem 0.8rem; border-radius: 2rem; margin-bottom: 1.6rem;
+      padding: 0.32rem 0.8rem; border-radius: 2rem;
     }
     .app-badge svg { width: 11px; height: 11px; fill: currentColor; }
+    .lang-btn {
+      background: var(--accent-light); color: var(--accent); border: none;
+      border-radius: 8px; padding: 0.32rem 0.65rem; font-size: 0.76rem; font-weight: 500;
+      cursor: pointer; font-family: 'DM Sans', sans-serif; white-space: nowrap;
+      transition: background 0.15s; min-height: 36px;
+    }
+    .lang-btn:hover { background: #e4d5f9; }
     h1 {
       font-family: 'DM Serif Display', serif;
       font-size: clamp(1.8rem, 7vw, 2.4rem); font-weight: 400;
@@ -65,35 +74,67 @@
       text-align: center; animation: fadeUp 0.5s 0.12s ease both;
     }
     footer p { font-size: 0.76rem; color: var(--muted); margin-bottom: 0.35rem; }
+    footer .footer-links { display: flex; gap: 1.25rem; justify-content: center; flex-wrap: wrap; }
     footer a { color: var(--accent); text-decoration: none; font-size: 0.76rem; font-weight: 500; }
     footer a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
   <div class="card">
-    <div class="app-badge">
-      <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-      AUTh Central Library
+    <div class="card-toprow">
+      <div class="app-badge">
+        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        <span data-i18n="badge">AUTh Central Library</span>
+      </div>
+      <button class="lang-btn" id="langToggle">🇬🇷&thinsp;ΕΛ</button>
     </div>
-    <h1>Find your <em>friends</em> at the library.</h1>
+
+    <h1 data-i18n="h1">Find your <em>friends</em> at the library.</h1>
     <div class="rule"></div>
-    <p>You were invited to join a table! To see exactly where your friends are sitting, download the official app.</p>
+    <p data-i18n="desc">You were invited to join a table! To see exactly where your friends are sitting, download the official app.</p>
+
     <a href="#" class="play-badge">
       <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" />
     </a>
+
     <hr />
+
     <a href="troubleshooting.html" class="help-link">
       <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
-      <span>Link didn't open the app?</span>
+      <span data-i18n="help-link">Link didn't open the app?</span>
       <svg class="arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
     </a>
   </div>
+
   <footer>
     <p>© 2026 SmartUniLabs</p>
-    <div style="display:flex;gap:1.25rem;flex-wrap:wrap;justify-content:center;">
-      <a href="https://panagiotispetrid.github.io/AUTh_Library_Web/privacy.html">Privacy Policy</a>
-      <a href="https://panagiotispetrid.github.io/AUTh_Library_Web/testers.html">Become a Tester</a>
+    <div class="footer-links">
+      <a href="https://panagiotispetrid.github.io/AUTh_Library_Web/privacy.html" data-i18n="privacy">Privacy Policy</a>
+      <a href="https://panagiotispetrid.github.io/AUTh_Library_Web/testers.html" data-i18n="testers">Become a Tester</a>
     </div>
   </footer>
+
+  <script src="./i18n.js"></script>
+  <script>
+    window.pageTranslations = {
+      en: {
+        'badge':     'AUTh Central Library',
+        'h1':        'Find your <em>friends</em> at the library.',
+        'desc':      "You were invited to join a table! To see exactly where your friends are sitting, download the official app.",
+        'help-link': "Link didn't open the app?",
+        'privacy':   'Privacy Policy',
+        'testers':   'Become a Tester',
+      },
+      el: {
+        'badge':     'Κεντρική Βιβλιοθήκη ΑΠΘ',
+        'h1':        'Βρες τους <em>φίλους σου</em> στη βιβλιοθήκη.',
+        'desc':      'Σε κάλεσαν σε ένα τραπέζι! Για να δεις ακριβώς πού κάθονται οι φίλοι σου, κατέβασε την επίσημη εφαρμογή.',
+        'help-link': 'Ο σύνδεσμος δεν άνοιξε την εφαρμογή;',
+        'privacy':   'Πολιτική Απορρήτου',
+        'testers':   'Γίνε Tester',
+      }
+    };
+    window.addEventListener('DOMContentLoaded', initI18n);
+  </script>
 </body>
 </html>
